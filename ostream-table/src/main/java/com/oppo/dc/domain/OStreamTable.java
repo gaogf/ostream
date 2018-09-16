@@ -40,22 +40,22 @@ public class OStreamTable {
     @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(name = "ostream_connector_params",
             joinColumns=@JoinColumn(name="table_id"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
+    @MapKeyColumn(name = "`key`")
+    @Column(name = "value", length = 10240)
     private Map<String, String> connectorParams = new HashMap<>();
 
     @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(name = "ostream_format_params",
             joinColumns=@JoinColumn(name="table_id"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
+    @MapKeyColumn(name = "`key`")
+    @Column(name = "value", length = 10240)
     private Map<String, String> formatParams = new HashMap<>();
 
     @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(name = "ostream_schema_params",
             joinColumns=@JoinColumn(name="table_id"))
-    @MapKeyColumn(name = "key")
-    @Column(name = "value")
+    @MapKeyColumn(name = "`key`")
+    @Column(name = "value", length = 10240)
     private Map<String, String> schemaParams = new HashMap<>();
 
     public int getId() {

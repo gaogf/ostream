@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface OStreamTableRepository extends JpaRepository<OStreamTable, Integer>{
     List<OStreamTable> findByDatabase_NameAndName(String dbName, String tableName);
+    List<OStreamTable> findByDatabase_Name(String dbName);
 }

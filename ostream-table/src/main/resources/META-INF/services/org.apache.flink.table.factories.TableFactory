@@ -13,4 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 com.oppo.dc.ostream.descriptors.AvroDescriptorFactory
+com.oppo.dc.ostream.descriptors.JsonDescriptorFactory
 com.oppo.dc.ostream.descriptors.KafkaDescriptorFactory
