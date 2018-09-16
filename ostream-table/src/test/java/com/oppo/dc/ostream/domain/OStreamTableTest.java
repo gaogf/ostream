@@ -1,11 +1,10 @@
-package com.oppo.dc.domain;
+package com.oppo.dc.ostream.domain;
 
-import com.oppo.dc.repository.OStreamDatabaseRepository;
-import com.oppo.dc.repository.OStreamTableRepository;
+import com.oppo.dc.ostream.repository.OStreamDatabaseRepository;
+import com.oppo.dc.ostream.repository.OStreamTableRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;

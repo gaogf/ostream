@@ -1,12 +1,12 @@
-package com.oppo.dc.catalog;
+package com.oppo.dc.ostream.catalog;
 
-import com.oppo.dc.OSteramTableConfig;
-import com.oppo.dc.domain.OStreamDatabase;
-import com.oppo.dc.domain.OStreamTable;
-import com.oppo.dc.domain.TableConnector;
-import com.oppo.dc.domain.TableFormat;
-import com.oppo.dc.repository.OStreamDatabaseRepository;
-import com.oppo.dc.repository.OStreamTableRepository;
+import com.oppo.dc.ostream.OSteramTableConfig;
+import com.oppo.dc.ostream.domain.OStreamDatabase;
+import com.oppo.dc.ostream.domain.OStreamTable;
+import com.oppo.dc.ostream.domain.TableConnector;
+import com.oppo.dc.ostream.domain.TableFormat;
+import com.oppo.dc.ostream.repository.OStreamDatabaseRepository;
+import com.oppo.dc.ostream.repository.OStreamTableRepository;
 import com.uber.athenax.vm.api.tables.AthenaXTableCatalog;
 import com.uber.athenax.vm.api.tables.AthenaXTableCatalogProvider;
 import org.apache.flink.table.api.TableSchema;

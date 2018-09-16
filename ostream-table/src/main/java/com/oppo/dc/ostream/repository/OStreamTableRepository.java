@@ -1,6 +1,6 @@
-package com.oppo.dc.repository;
+package com.oppo.dc.ostream.repository;
 
-import com.oppo.dc.domain.OStreamTable;
+import com.oppo.dc.ostream.domain.OStreamTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

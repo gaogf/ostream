@@ -1,4 +1,4 @@
-package com.oppo.dc.domain;
+package com.oppo.dc.ostream.domain;
 
 public enum TableFormat {
     AVRO, JSON;

@@ -1,4 +1,4 @@
-package com.oppo.dc.domain;
+package com.oppo.dc.ostream.domain;
 
 import javax.persistence.*;
 import java.sql.Timestamp;

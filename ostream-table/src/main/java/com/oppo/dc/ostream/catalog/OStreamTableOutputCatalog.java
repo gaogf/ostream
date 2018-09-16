@@ -1,9 +1,9 @@
-package com.oppo.dc.catalog;
+package com.oppo.dc.ostream.catalog;
 
-import com.oppo.dc.domain.OStreamTable;
+import com.oppo.dc.ostream.domain.OStreamTable;
 import com.oppo.dc.ostream.descriptors.ConnectorDescriptorFactory;
 import com.oppo.dc.ostream.descriptors.FormatDescriptorFactory;
-import com.oppo.dc.repository.OStreamTableRepository;
+import com.oppo.dc.ostream.repository.OStreamTableRepository;
 import com.uber.athenax.vm.api.tables.AthenaXTableCatalog;
 import org.apache.flink.table.api.CatalogNotExistException;
 import org.apache.flink.table.api.TableNotExistException;
