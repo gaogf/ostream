@@ -27,7 +27,7 @@ public class OStreamJobInitializer {
                 .withOutput("dw.app_install_event_output")
                 .withQueue("root.etlstream")
                 .withVcores(4L)
-                .withMemory(4096L)
+                .withMemory(1024L)
                 .withExecutionSlots(1L)
                 .build();
 
