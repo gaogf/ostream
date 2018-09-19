@@ -17,10 +17,10 @@ public class OStreamJob {
     private String comment;
 
     @Column(name = "created_by")
-    private Timestamp createdBy;
+    private Timestamp creatTime;
 
     @Column(name = "create_time")
-    private String creatTime;
+    private String createdBy;
 
     @Column(name = "sql_query")
     private String query;
@@ -67,20 +67,20 @@ public class OStreamJob {
         this.comment = comment;
     }
 
-    public Timestamp getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Timestamp createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getCreatTime() {
+    public Timestamp getCreatTime() {
         return creatTime;
     }
 
-    public void setCreatTime(String creatTime) {
+    public void setCreatTime(Timestamp creatTime) {
         this.creatTime = creatTime;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getQuery() {
@@ -139,12 +139,13 @@ public class OStreamJob {
         this.executionSlots = executionSlots;
     }
 
+
     public static final class Builder {
         private String id;
         private String name;
         private String comment;
-        private Timestamp createdBy;
-        private String creatTime;
+        private Timestamp creatTime;
+        private String createdBy;
         private String query;
         private String output;
         private String cluster;
@@ -175,13 +176,13 @@ public class OStreamJob {
             return this;
         }
 
-        public Builder withCreatedBy(Timestamp createdBy) {
-            this.createdBy = createdBy;
+        public Builder withCreatTime(Timestamp creatTime) {
+            this.creatTime = creatTime;
             return this;
         }
 
-        public Builder withCreatTime(String creatTime) {
-            this.creatTime = creatTime;
+        public Builder withCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
             return this;
         }
 
@@ -225,8 +226,8 @@ public class OStreamJob {
             oStreamJob.setId(id);
             oStreamJob.setName(name);
             oStreamJob.setComment(comment);
-            oStreamJob.setCreatedBy(createdBy);
             oStreamJob.setCreatTime(creatTime);
+            oStreamJob.setCreatedBy(createdBy);
             oStreamJob.setQuery(query);
             oStreamJob.setOutput(output);
             oStreamJob.setCluster(cluster);
