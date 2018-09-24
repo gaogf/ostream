@@ -44,7 +44,7 @@ public class OStreamTableCatalogProvider implements AthenaXTableCatalogProvider 
 
     @Override
     public AthenaXTableCatalog getOutputCatalog(String s, List<String> list) {
-        return new OStreamTableOutputCatalog(tableRepository, list);
+        return null;
     }
 
     public static void main(String [] args) {
