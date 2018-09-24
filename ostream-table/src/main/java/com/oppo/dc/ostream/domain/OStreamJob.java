@@ -16,10 +16,10 @@ public class OStreamJob {
     @Column(name = "comment")
     private String comment;
 
-    @Column(name = "created_by")
+    @Column(name = "create_time")
     private Timestamp creatTime;
 
-    @Column(name = "create_time")
+    @Column(name = "create_by")
     private String createdBy;
 
     @Column(name = "sql_query", length=10240)
