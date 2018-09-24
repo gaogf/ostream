@@ -22,7 +22,7 @@ public class OStreamJob {
     @Column(name = "create_time")
     private String createdBy;
 
-    @Column(name = "sql_query")
+    @Column(name = "sql_query", length=10240)
     private String query;
 
     @Column(name = "sql_output")
