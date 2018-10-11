@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-@Component
+//@Component
 public class OStreamMetadataFeeds implements OStreamMetadata{
     public OStreamDatabase createOrGetDatabase(ApplicationContext ctx) {
         OStreamDatabaseRepository databaseRepository =

@@ -15,3 +15,5 @@
 com.oppo.dc.ostream.descriptors.AvroDescriptorFactory
 com.oppo.dc.ostream.descriptors.JsonDescriptorFactory
 com.oppo.dc.ostream.descriptors.KafkaDescriptorFactory
+com.oppo.dc.ostream.descriptors.CsvDescriptorFactory
+com.oppo.dc.ostream.csv.CsvRowFormatFactory
