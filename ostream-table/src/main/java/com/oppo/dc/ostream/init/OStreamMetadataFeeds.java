@@ -1,43 +1,44 @@
-package com.oppo.dc.ostream;
+package com.oppo.dc.ostream.init;
 
-import com.oppo.dc.ostream.domain.OStreamDatabase;
-import com.oppo.dc.ostream.domain.OStreamTable;
-import com.oppo.dc.ostream.domain.TableConnector;
-import com.oppo.dc.ostream.domain.TableFormat;
+import com.oppo.dc.ostream.domain.*;
 import com.oppo.dc.ostream.repository.OStreamDatabaseRepository;
+import com.oppo.dc.ostream.repository.OStreamJobRepository;
 import com.oppo.dc.ostream.repository.OStreamTableRepository;
 import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.descriptors.*;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
-public class OStreamMetadataInitializer {
-    public static void main(String [] args) throws Exception {
-        ApplicationContext context = SpringApplication.run(OSteramTableConfig.class);
-        OStreamDatabase db = initDatabase(context);
-        initSinkTables(context, db);
-        initSourceTables(context, db);
-        initFeedsSourceTables(context, db);
-        initFeedsSinkTables(context, db);
-    }
-
-    private static OStreamDatabase initDatabase(ApplicationContext ctx) throws Exception {
+@Component
+public class OStreamMetadataFeeds implements OStreamMetadata{
+    public OStreamDatabase createOrGetDatabase(ApplicationContext ctx) {
         OStreamDatabaseRepository databaseRepository =
                 ctx.getBean(OStreamDatabaseRepository.class);
+        final String dbName = "dw";
+
+        List<OStreamDatabase> dbs = databaseRepository.findByName(dbName);
+        if(dbs.size() > 0) {
+            return dbs.get(0);
+        }
 
         OStreamDatabase database = new OStreamDatabase();
-        database.setName("dw");
+        database.setName(dbName);
         database.setComment("数据仓库");
         database.setCreateTime(new Timestamp(System.currentTimeMillis()));
         database.setCreatedBy("80189083");
         return databaseRepository.save(database);
     }
 
-    private static void initFeedsSourceTables(ApplicationContext ctx, OStreamDatabase database) {
+    @Override
+    public void initSourceTables(ApplicationContext ctx) {
+        OStreamDatabase database = createOrGetDatabase(ctx);
+
         OStreamTableRepository tableRepository =
                 ctx.getBean(OStreamTableRepository.class);
 
@@ -50,6 +51,8 @@ public class OStreamMetadataInitializer {
                 "password=\"3d#hS68315Xm\";");
         kafkaProps.put("security.protocol", "SASL_PLAINTEXT");
         kafkaProps.put("sasl.mechanism", "PLAIN");
+        kafkaProps.put("fetch.message.max.bytes", "5242880");
+        kafkaProps.put("fetch.max.bytes", "262144000");
 
         OStreamTable sourceTable = new OStreamTable();
         sourceTable.setName("sdk_log_browser_feeds");
@@ -103,7 +106,10 @@ public class OStreamMetadataInitializer {
         tableRepository.save(sourceTable);
     }
 
-    private static void initFeedsSinkTables(ApplicationContext ctx, OStreamDatabase database) {
+    @Override
+    public void initSinkTables(ApplicationContext ctx) {
+        OStreamDatabase database = createOrGetDatabase(ctx);
+
         OStreamTableRepository tableRepository =
                 ctx.getBean(OStreamTableRepository.class);
 
@@ -115,6 +121,8 @@ public class OStreamMetadataInitializer {
                 "password=\"3d#hS68315Xm\";");
         kafkaProps.put("security.protocol", "SASL_PLAINTEXT");
         kafkaProps.put("sasl.mechanism", "PLAIN");
+        kafkaProps.put("request.timeout.ms", "1200000");
+        kafkaProps.put("batch.size", "131072");
 
         // init sink tables
         OStreamTable sinkTable = new OStreamTable();
@@ -129,7 +137,7 @@ public class OStreamMetadataInitializer {
         // initialize table descriptors
         ConnectorDescriptor connectorDescriptor = new Kafka()
                 .version("0.10")
-                .topic("sdk_log_browser_feeds_test")
+                .topic("druid_browser_feeds_test")
                 .properties(kafkaProps)
                 .startFromGroupOffsets();
 
@@ -150,7 +158,7 @@ public class OStreamMetadataInitializer {
                 "             {\"name\": \"stat_name\", \"type\": [\"null\", \"string\"]},\n" +
                 "             {\"name\": \"channel_name\", \"type\": [\"null\", \"string\"]},\n" +
                 "             {\"name\": \"from_id\", \"type\": [\"null\", \"string\"]},\n" +
-                "             {\"name\": \"view_time\", \"type\": [\"null\", \"string\"]}\n" +
+                "             {\"name\": \"view_time\", \"type\": [\"null\", \"long\"]}\n" +
                 "          ]\n" +
                 "    }";
         FormatDescriptor formatDescriptor = new Json().schema(AvroSchemaConverter.convertToTypeInfo(AVRO_SCHEMA));
@@ -164,104 +172,29 @@ public class OStreamMetadataInitializer {
         tableRepository.save(sinkTable);
     }
 
-    private static void initSourceTables(ApplicationContext ctx, OStreamDatabase database) throws Exception {
-        OStreamTableRepository tableRepository =
-                ctx.getBean(OStreamTableRepository.class);
 
-        OStreamTable table = new OStreamTable();
-        table.setName("app_install_event");
-        table.setComment("应用安装卸载事件");
-        table.setCreatedBy("80189083");
-        table.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        table.setConnectorType(TableConnector.KAFKA);
-        table.setFormatType(TableFormat.AVRO);
-        table.setDatabase(database);
+    @Override
+    public void initJobs(ApplicationContext ctx) {
+        OStreamJobRepository jobRepository = ctx.getBean(OStreamJobRepository.class);
 
-        // kafka configs
-        Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", "bj2569:9094,bj2583:9094,bj2584:9094,bj2658:9094,bj2660:9094");
-        kafkaProps.put("group.id", "dc_demo_group");
-        kafkaProps.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required\n" +
-                "username=\"admin\"\n" +
-                "password=\"3d#hS68315Xm\";");
-        kafkaProps.put("security.protocol", "SASL_PLAINTEXT");
-        kafkaProps.put("sasl.mechanism", "PLAIN");
+        OStreamJob job = OStreamJob.Builder.anOStreamJob()
+                .withId(UUID.randomUUID().toString())
+                .withName("feeds_job")
+                .withCreatedBy("80189083")
+                .withCreatTime(new Timestamp(System.currentTimeMillis()))
+                .withCluster("bi-cluster")
+                .withQuery("INSERT INTO `dw.sdk_log_browser_feeds_test` " +
+                        "SELECT imei,model,os_version,app_version,event_id,server_time," +
+                        "event_info['module'],event_info['iflow_source'],event_info['eventTag']," +
+                        "event_info['stat_name'],event_info['channel_name'],event_info['from_id']," +
+                        "CAST(event_info['view_time'] AS BIGINT) FROM dw.sdk_log_browser_feeds")
+                .withOutput("")
+                .withQueue("root.etlstream")
+                .withVcores(48L)
+                .withMemory(2048L)
+                .withExecutionSlots(1L)
+                .build();
 
-        // initialize table descriptors
-        ConnectorDescriptor connectorDescriptor = new Kafka()
-                .version("0.10")
-                .topic("app_install_event")
-                .properties(kafkaProps)
-                .startFromGroupOffsets();
-
-        final String AVRO_SCHEMA = "    {\n" +
-                "         \"namespace\": \"com.oppo.dc.data.avro.generated\",\n" +
-                "         \"type\": \"record\",\n" +
-                "         \"name\": \"AppInstallEvent\",\n" +
-                "         \"fields\": [\n" +
-                "             {\"name\": \"imei\", \"type\": [\"null\", \"string\"]},\n" +
-                "             {\"name\": \"app_id\", \"type\": [\"null\", \"string\"]},\n" +
-                "             {\"name\": \"action\", \"type\": [\"null\", \"int\"]}\n" +
-                "          ]\n" +
-                "    }";
-        FormatDescriptor formatDescriptor = new Avro().avroSchema(AVRO_SCHEMA);
-        Schema schemaDesc = new Schema().schema(TableSchema.fromTypeInfo(
-                AvroSchemaConverter.convertToTypeInfo(AVRO_SCHEMA)));
-
-        table.setConnectorParams(DescriptorProperties.toJavaMap(connectorDescriptor));
-        table.setFormatParams(DescriptorProperties.toJavaMap(formatDescriptor));
-        table.setSchemaParams(DescriptorProperties.toJavaMap(schemaDesc));
-
-        tableRepository.save(table);
-    }
-
-    private static void initSinkTables(ApplicationContext ctx, OStreamDatabase database) throws Exception {
-        OStreamTableRepository tableRepository =
-                ctx.getBean(OStreamTableRepository.class);
-
-        OStreamTable table = new OStreamTable();
-        table.setName("app_install_event_output");
-        table.setComment("测试Demo");
-        table.setCreatedBy("80189083");
-        table.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        table.setConnectorType(TableConnector.KAFKA);
-        table.setFormatType(TableFormat.AVRO);
-        table.setDatabase(database);
-
-        // kafka configs
-        Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", "bj2569:9094,bj2583:9094,bj2584:9094,bj2658:9094,bj2660:9094");
-        kafkaProps.put("sasl.jaas.config", "org.apache.kafka.common.security.plain.PlainLoginModule required\n" +
-                "username=\"admin\"\n" +
-                "password=\"3d#hS68315Xm\";");
-        kafkaProps.put("security.protocol", "SASL_PLAINTEXT");
-        kafkaProps.put("sasl.mechanism", "PLAIN");
-
-        // initialize table descriptors
-        ConnectorDescriptor connectorDescriptor = new Kafka()
-                .version("0.10")
-                .topic("app_install_event_output")
-                .properties(kafkaProps)
-                .startFromGroupOffsets();
-
-        final String AVRO_SCHEMA = "    {\n" +
-                "         \"namespace\": \"com.oppo.dc.data.avro.generated\",\n" +
-                "         \"type\": \"record\",\n" +
-                "         \"name\": \"AppInstallEvent\",\n" +
-                "         \"fields\": [\n" +
-                "             {\"name\": \"imei\", \"type\": [\"null\", \"string\"]},\n" +
-                "             {\"name\": \"app_id\", \"type\": [\"null\", \"string\"]},\n" +
-                "             {\"name\": \"action\", \"type\": [\"null\", \"int\"]}\n" +
-                "          ]\n" +
-                "    }";
-        FormatDescriptor formatDescriptor = new Avro().avroSchema(AVRO_SCHEMA);
-        Schema schemaDesc = new Schema().schema(TableSchema.fromTypeInfo(
-                AvroSchemaConverter.convertToTypeInfo(AVRO_SCHEMA)));
-
-        table.setConnectorParams(DescriptorProperties.toJavaMap(connectorDescriptor));
-        table.setFormatParams(DescriptorProperties.toJavaMap(formatDescriptor));
-        table.setSchemaParams(DescriptorProperties.toJavaMap(schemaDesc));
-
-        tableRepository.save(table);
+        jobRepository.save(job);
     }
 }

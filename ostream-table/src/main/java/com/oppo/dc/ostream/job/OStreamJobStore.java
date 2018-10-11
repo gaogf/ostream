@@ -54,23 +54,4 @@ public class OStreamJobStore implements JobStore {
     public void close() throws IOException {
         // nothing to do
     }
-
-    public static void main(String [] args) throws Exception {
-        OStreamJobStore jobStore = new OStreamJobStore();
-        jobStore.open(null);
-
-        OStreamJob job = OStreamJob.Builder.anOStreamJob()
-                .withId(UUID.randomUUID().toString())
-                .withName("demo_job")
-                .withCluster("foo")
-                .withQuery("select * from db1.tb1")
-                .withOutput("db1.tb2")
-                .withQueue("default")
-                .withVcores(1L)
-                .withMemory(1024L)
-                .withExecutionSlots(1L)
-                .build();
-
-        jobStore.jobRepository.save(job);
-    }
 }
