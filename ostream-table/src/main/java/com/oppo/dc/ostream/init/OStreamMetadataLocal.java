@@ -9,13 +9,16 @@ import org.apache.flink.table.api.TableSchemaBuilder;
 import org.apache.flink.table.api.Types;
 import org.apache.flink.table.descriptors.*;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-//@Component
+@Component
+@Profile("local")
 public class OStreamMetadataLocal implements OStreamMetadata {
     public OStreamDatabase createOrGetDatabase(ApplicationContext ctx) {
         OStreamDatabaseRepository databaseRepository =
@@ -110,6 +113,33 @@ public class OStreamMetadataLocal implements OStreamMetadata {
         table2.setSchemaParams(DescriptorProperties.toJavaMap(schemaDesc2));
 
         tableRepository.save(table2);
+
+
+        OStreamTable table3 = new OStreamTable();
+        table3.setName("tb3");
+        table3.setComment("comment");
+        table3.setConnectorType(TableConnector.KAFKA);
+        table3.setFormatType(TableFormat.JSON);
+        table3.setDatabase(database);
+
+        ConnectorDescriptor connectorDescriptor3 = new Kafka()
+                .version("0.10")
+                .topic("outputJessie")
+                .properties(kafkaProps)
+                .startFromEarliest();
+
+        TableSchema schema3 = new TableSchemaBuilder()
+                .field("id", Types.INT())
+                .field("name", Types.STRING())
+                .build();
+        FormatDescriptor formatDescriptor3 = new Json().schema(schema3.toRowType());
+        Schema schemaDesc3 = new Schema().schema(schema3);
+
+        table3.setConnectorParams(DescriptorProperties.toJavaMap(connectorDescriptor3));
+        table3.setFormatParams(DescriptorProperties.toJavaMap(formatDescriptor3));
+        table3.setSchemaParams(DescriptorProperties.toJavaMap(schemaDesc3));
+
+        tableRepository.save(table3);
     }
 
 
@@ -121,7 +151,7 @@ public class OStreamMetadataLocal implements OStreamMetadata {
                 .withId(UUID.randomUUID().toString())
                 .withName("demo_job")
                 .withCluster("foo")
-                .withQuery("INSERT INTO `db1.tb2` SELECT * FROM db1.tb1")
+                .withQuery("INSERT INTO `db1.tb2` SELECT * FROM db1.tb1;INSERT INTO `db1.tb3` SELECT * FROM db1.tb1")
                 .withOutput("")
                 .withQueue("default")
                 .withVcores(1L)

@@ -8,6 +8,7 @@ import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.descriptors.*;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -16,6 +17,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 @Component
+@Profile("production")
 public class OStreamMetadataSdkLog implements OStreamMetadata{
     final String SOURCE_AVRO_SCHEMA = "{\n" +
             "         \"namespace\": \"com.oppo.dc.data.avro.generated\",\n" +

@@ -8,6 +8,7 @@ import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.descriptors.*;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -15,7 +16,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-//@Component
+@Component
+@Profile("production")
 public class OStreamMetadataFeeds implements OStreamMetadata{
     public OStreamDatabase createOrGetDatabase(ApplicationContext ctx) {
         OStreamDatabaseRepository databaseRepository =
