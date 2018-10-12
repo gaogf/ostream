@@ -70,13 +70,19 @@ public class OStreamMetadataSdkLog implements OStreamMetadata{
         OStreamTableRepository tableRepository =
                 ctx.getBean(OStreamTableRepository.class);
 
+        final String tableName = "sdk_log";
+        // check if already initialized
+        if(tableRepository.findByDatabase_NameAndName(database.getName(), tableName).size() > 0) {
+            return;
+        }
+
         // kafka related configs
         Properties srcKafkaProps = new Properties();
         srcKafkaProps.put("bootstrap.servers", "10.12.33.33:9092,10.12.33.42:9092,10.12.33.34:9092");
         srcKafkaProps.put("group.id", "dc_etl_group");
 
         OStreamTable sourceTable = new OStreamTable();
-        sourceTable.setName("sdk_log");
+        sourceTable.setName(tableName);
         sourceTable.setComment("埋点上报sdk_log");
         sourceTable.setCreatedBy("80189083");
         sourceTable.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -149,6 +155,11 @@ public class OStreamMetadataSdkLog implements OStreamMetadata{
     private void initSinkTableInternal(OStreamDatabase database, OStreamTableRepository tableRepository,
                                                String name, String comment, Properties kafkaProps,
                                                FormatDescriptor formatDescriptor, Schema schemaDesc) {
+        // check if already initialized
+        if(tableRepository.findByDatabase_NameAndName(database.getName(), name).size() > 0) {
+            return;
+        }
+
         OStreamTable sinkTable = new OStreamTable();
         sinkTable.setName(name);
         sinkTable.setComment(comment);
@@ -176,6 +187,11 @@ public class OStreamMetadataSdkLog implements OStreamMetadata{
     public void initJobs(ApplicationContext ctx) {
         OStreamJobRepository jobRepository = ctx.getBean(OStreamJobRepository.class);
 
+        final String jobName = "sdk_log_job";
+        if(jobRepository.findByName(jobName).size() > 0){
+            return;
+        }
+
         String [] queries = new String[] {
             "INSERT INTO `dw.sdk_log_cdo` SELECT * FROM dw.sdk_log WHERE system_id = '2' OR system_id = '1000'",
             "INSERT INTO `dw.sdk_log_browser_client` SELECT * FROM dw.sdk_log WHERE system_id = '2007' AND event_info['eventTag'] = '10001'",
@@ -185,11 +201,9 @@ public class OStreamMetadataSdkLog implements OStreamMetadata{
             "INSERT INTO `dw.sdk_log_browser_others` SELECT * FROM dw.sdk_log WHERE system_id = '2007' AND event_info['eventTag'] not in ('10001', '10012', '10004', '10006')"
         };
 
-
-
         OStreamJob job = OStreamJob.Builder.anOStreamJob()
                 .withId(UUID.randomUUID().toString())
-                .withName("sdk_log_job")
+                .withName(jobName)
                 .withCreatedBy("80189083")
                 .withCreatTime(new Timestamp(System.currentTimeMillis()))
                 .withCluster("bi-cluster")

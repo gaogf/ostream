@@ -44,6 +44,12 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
         OStreamTableRepository tableRepository =
                 ctx.getBean(OStreamTableRepository.class);
 
+        final String tableName = "sdk_log_browser_feeds_src";
+        // check if already initialized
+        if(tableRepository.findByDatabase_NameAndName(database.getName(), tableName).size() > 0) {
+            return;
+        }
+
         // kafka configs
         Properties kafkaProps = new Properties();
         kafkaProps.put("bootstrap.servers", "bj2569:9094,bj2583:9094,bj2584:9094,bj2658:9094,bj2660:9094");
@@ -57,7 +63,7 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
         kafkaProps.put("fetch.max.bytes", "262144000");
 
         OStreamTable sourceTable = new OStreamTable();
-        sourceTable.setName("sdk_log_browser_feeds");
+        sourceTable.setName(tableName);
         sourceTable.setComment("浏览器信息流数据");
         sourceTable.setCreatedBy("80189083");
         sourceTable.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -115,6 +121,12 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
         OStreamTableRepository tableRepository =
                 ctx.getBean(OStreamTableRepository.class);
 
+        final String tableName = "sdk_log_browser_feeds_test";
+        // check if already initialized
+        if(tableRepository.findByDatabase_NameAndName(database.getName(), tableName).size() > 0) {
+            return;
+        }
+
         // kafka configs
         Properties kafkaProps = new Properties();
         kafkaProps.put("bootstrap.servers", "bj2569:9094,bj2583:9094,bj2584:9094,bj2658:9094,bj2660:9094");
@@ -128,7 +140,7 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
 
         // init sink tables
         OStreamTable sinkTable = new OStreamTable();
-        sinkTable.setName("sdk_log_browser_feeds_test");
+        sinkTable.setName(tableName);
         sinkTable.setComment("浏览器信息流数据处理结果");
         sinkTable.setCreatedBy("80189083");
         sinkTable.setCreateTime(new Timestamp(System.currentTimeMillis()));
@@ -179,6 +191,11 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
     public void initJobs(ApplicationContext ctx) {
         OStreamJobRepository jobRepository = ctx.getBean(OStreamJobRepository.class);
 
+        final String jobName = "feeds_job";
+        if(jobRepository.findByName(jobName).size() > 0){
+            return;
+        }
+
         OStreamJob job = OStreamJob.Builder.anOStreamJob()
                 .withId(UUID.randomUUID().toString())
                 .withName("feeds_job")
@@ -189,7 +206,7 @@ public class OStreamMetadataFeeds implements OStreamMetadata{
                         "SELECT imei,model,os_version,app_version,event_id,server_time," +
                         "event_info['module'],event_info['iflow_source'],event_info['eventTag']," +
                         "event_info['stat_name'],event_info['channel_name'],event_info['from_id']," +
-                        "CAST(event_info['view_time'] AS BIGINT) FROM dw.sdk_log_browser_feeds")
+                        "CAST(event_info['view_time'] AS BIGINT) FROM dw.sdk_log_browser_feeds_src")
                 .withOutput("")
                 .withQueue("root.etlstream")
                 .withVcores(48L)

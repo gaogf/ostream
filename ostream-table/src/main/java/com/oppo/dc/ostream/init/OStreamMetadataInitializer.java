@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 public class OStreamMetadataInitializer {
-    @Autowired
+    @Autowired(required=false)
     private List<OStreamMetadata> oStreamMetadataList;
 
     public static void main(String [] args) {
@@ -20,6 +20,8 @@ public class OStreamMetadataInitializer {
     }
 
     public void init(ApplicationContext ctx) {
+        if(oStreamMetadataList == null)return;
+
         for(OStreamMetadata metadata : oStreamMetadataList) {
             metadata.initSourceTables(ctx);
             metadata.initSinkTables(ctx);
